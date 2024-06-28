@@ -30,7 +30,7 @@ class MyBot : Bot {
         if (100 - dynamitesPlayed == movesUntilEnd) {
             dynamiteProbability = 1.0
         }
-        println("$roundScoreMultiplier $dynamiteProbability")
+//        println("$roundScoreMultiplier $dynamiteProbability")
 
 //        if (movesUntilEnd == 1) {
 //            logGamestate(gamestate)
@@ -52,11 +52,13 @@ class MyBot : Bot {
                 roundScore++
             } else break
         }
+//        if (gamestate.rounds.isNotEmpty())
+//            println("${gamestate.rounds.last().p1} ${gamestate.rounds.last().p2}")
         return roundScore
     }
 
     private fun calculateRoundScoreMultiplier(roundScore: Int): Double {
-        return 10.0.pow(roundScore - 1) - 0.9
+        return 4.0.pow(roundScore - 1) - 0.9
     }
 
     private fun numberOfDynamitesPlayed(gamestate: Gamestate): Int {
