@@ -13,6 +13,11 @@ class MyBot : Bot {
     override fun makeMove(gamestate: Gamestate): Move {
         // Are you debugging?
         // Put a breakpoint in this method to see when we make a move
+
+        // W and D first 2 to confuse opponent lol
+        if (gamestate.rounds.size == 0) return Move.W
+        else if (gamestate.rounds.size == 1) return Move.D
+
         val randomNumberBetween0And3 =
             floor(Math.random() * 3.0).toInt()
         val possibleMoves = arrayOf(Move.R, Move.P, Move.S)
