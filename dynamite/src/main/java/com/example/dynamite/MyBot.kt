@@ -5,6 +5,7 @@ import com.softwire.dynamite.game.Gamestate
 import com.softwire.dynamite.game.Move
 import com.softwire.dynamite.game.Round
 import java.io.File
+import kotlin.math.pow
 import kotlin.math.floor
 import kotlin.math.max
 
@@ -20,12 +21,20 @@ class MyBot : Bot {
         val dynamitesPlayed = numberOfDynamitesPlayed(gamestate)
         val (scoreP1, scoreP2) = calculateScores(gamestate)
         val movesUntilEnd = 1000 - max(scoreP1, scoreP2)
-//        println("$scoreP1 $scoreP2 $movesUntilEnd")
-        val dynamiteProbability = (100.0 - dynamitesPlayed) / movesUntilEnd
 
-        if (movesUntilEnd == 1) {
-            logGamestate(gamestate)
+        val roundScore = calculateRoundScore(gamestate)
+        val roundScoreMultiplier = calculateRoundScoreMultiplier(roundScore)
+
+        var dynamiteProbability = (100.0 - dynamitesPlayed) / movesUntilEnd * roundScoreMultiplier
+        // Make sure to use all dynamites
+        if (100 - dynamitesPlayed == movesUntilEnd) {
+            dynamiteProbability = 1.0
         }
+        println("$roundScoreMultiplier $dynamiteProbability")
+
+//        if (movesUntilEnd == 1) {
+//            logGamestate(gamestate)
+//        }
 
         val dynamiteRNG = Math.random()
 //        println("$dynamiteRNG $dynamiteProbability")
@@ -36,22 +45,18 @@ class MyBot : Bot {
         return randomMove
     }
 
-    private fun logGamestate(gamestate: Gamestate) {
-        File("gamestateLog.txt").printWriter().use { out ->
-            gamestate.rounds.forEach {
-                out.println("${moveToText(it.p1)}-${moveToText(it.p2)} ${calculateWinner(it.p1, it.p2)}")
-            }
+    private fun calculateRoundScore(gamestate: Gamestate): Int {
+        var roundScore = 1
+        for (round in gamestate.rounds.reversed()) {
+            if (calculateWinner(round.p1, round.p2) == 0) {
+                roundScore++
+            } else break
         }
+        return roundScore
     }
 
-    private fun moveToText(move: Move): String {
-        return when (move) {
-            Move.R -> "R"
-            Move.P -> "P"
-            Move.S -> "S"
-            Move.D -> "D"
-            Move.W -> "W"
-        }
+    private fun calculateRoundScoreMultiplier(roundScore: Int): Double {
+        return 10.0.pow(roundScore - 1) - 0.9
     }
 
     private fun numberOfDynamitesPlayed(gamestate: Gamestate): Int {
@@ -107,6 +112,24 @@ class MyBot : Bot {
                 if (move2 == Move.P || move2 == Move.W) return 1
                 return 2
             }
+        }
+    }
+
+    private fun logGamestate(gamestate: Gamestate) {
+        File("gamestateLog.txt").printWriter().use { out ->
+            gamestate.rounds.forEach {
+                out.println("${moveToText(it.p1)}-${moveToText(it.p2)} ${calculateWinner(it.p1, it.p2)}")
+            }
+        }
+    }
+
+    private fun moveToText(move: Move): String {
+        return when (move) {
+            Move.R -> "R"
+            Move.P -> "P"
+            Move.S -> "S"
+            Move.D -> "D"
+            Move.W -> "W"
         }
     }
 
